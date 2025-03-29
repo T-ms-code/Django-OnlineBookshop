@@ -1,0 +1,64 @@
+<form method="post">
+    {% csrf_token %}
+
+  {% if form.non_field_errors %}
+        <div class="form-group">
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}    
+
+    <div class="form-group">
+        {{ form.nume.label_tag }}
+        {{ form.nume }}
+        {% if form.nume.errors %}
+            <div class="field-errors">{{ form.nume.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.prenume.label_tag }}
+        {{ form.prenume }}
+        {% if form.prenume.errors %}
+            <div class="field-errors">{{ form.prenume.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.data_nastere.label_tag }}
+        {{ form.data_nastere }}
+        {% if form.data_nastere.errors %}
+            <div class="field-errors">{{ form.data_nastere.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.informatii_aditionale1.label_tag }}
+        {{ form.informatii_aditionale1 }}
+        {% if form.informatii_aditionale1.errors %}
+            <div class="field-errors">{{ form.informatii_aditionale1.errors }}</div>
+        {% endif %}
+         <small>{{form.informatii_aditionale1.help_text}}</small>
+    </div>
+
+    <div class="form-group">
+        {{ form.informatii_aditionale2.label_tag }}
+        {{ form.informatii_aditionale2 }}
+        {% if form.informatii_aditionale2.errors %}
+            <div class="field-errors">{{ form.informatii_aditionale2.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.informatii_aditionale3.label_tag }}
+        {{ form.informatii_aditionale3 }}
+        {% if form.informatii_aditionale3.errors %}
+            <div class="field-errors">{{ form.informatii_aditionale3.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit">Trimite</button>
+</form>

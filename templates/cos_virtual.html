@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cos Virtual</title>
+    <style>
+        .adaugat-in-cos {
+            background-color: red; 
+        }
+
+        .buton-cumpara {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .buton-cumpara:hover {
+            transform: scale(1.1);
+            background-color: darkred;
+        }
+        .cos-cumparaturi {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+        .cos-cumparaturi img {
+            width: 250px;
+            height: 250px;
+        }
+    </style>
+    <script>
+        let cosVirtual = JSON.parse(localStorage.getItem('cosVirtual')) || [];
+
+        function adaugaInCos(id, titlu, stoc, pret, nr) {
+            let produs = cosVirtual.find(p =>p.id==id);
+        
+            if (nr === '') {
+                nr = nr+'0'; 
+                alert('Cantitate invalida! S-a setat la 0.');
+            }
+            
+            nr = parseInt(nr);
+
+            if (stoc<nr) {alert('Se doreste cumpararea unui numar de produse mai mare decat stocul!'); return;}
+
+
+            if (produs) {
+
+                if (parseInt(produs.cantitate)+parseInt(nr)<=parseInt(stoc)) {
+                    produs.cantitate=parseInt(produs.cantitate)+parseInt(nr);
+                } else {
+                    alert('S-a depasit cantitatea maxima permisa/stocul!');
+                }
+
+            } else {
+                cosVirtual.push({id, titlu, cantitate: nr, pret, stoc});
+            }
+            localStorage.setItem('cosVirtual', JSON.stringify(cosVirtual));
+            actualizeazaAfisaj();
+        }
+
+        function stergeDinCos(id) {
+            cosVirtual = cosVirtual.filter(p=>p.id !=id);
+            localStorage.setItem('cosVirtual', JSON.stringify(cosVirtual));
+            const produsElement = document.getElementById(`produs-${id}`);
+            produsElement.classList.remove('adaugat-in-cos');
+            actualizeazaAfisaj();
+        }
+
+        function modificaCantitate(id, cantitate, stoc) {
+            let produs = cosVirtual.find(p =>p.id==id);
+            if (produs) {
+                if (cantitate >= 0 && cantitate <= stoc) {
+                    produs.cantitate = cantitate;
+                } else {
+                    alert('Cantitate invalida (mai mica decat 0 sau mai mare decat stocul disponibil)!');
+                }
+            }
+            localStorage.setItem('cosVirtual', JSON.stringify(cosVirtual));
+            actualizeazaAfisaj();
+        }
+
+        function ordoneazaProduse(criteriu) {
+            cosVirtual.sort((a, b) => {
+                if (criteriu === 'nume') return a.titlu.localeCompare(b.titlu);
+                if (criteriu === 'pret') return a.cantitate * a.pret - b.cantitate * b.pret;
+            });
+            localStorage.setItem('cosVirtual', JSON.stringify(cosVirtual));
+            actualizeazaAfisaj();
+        }
+
+        function actualizeazaAfisaj() {
+            const produseList = document.getElementById('produse-list');
+            produseList.innerHTML = '';
+
+            let totalCantitate = 0;
+            let totalPret = 0;
+            
+            cosVirtual.forEach(p => {
+                const produsRow = document.createElement('tr');
+
+                const produsElement = document.getElementById(`produs-${p.id}`);
+                produsElement.classList.add('adaugat-in-cos');
+
+
+                produsRow.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.titlu}</td>
+                    <td>${p.cantitate}</td>
+                    <td>${p.pret}</td>
+                    <td>${(p.cantitate * p.pret).toFixed(2)}</td>
+                    <td>
+                        <button onclick="modificaCantitate(${p.id}, ${p.cantitate - 1}, ${p.stoc})">-</button>
+                        <button onclick="modificaCantitate(${p.id}, ${p.cantitate + 1}, ${p.stoc})">+</button>
+                        <button onclick="stergeDinCos(${p.id})">Sterge</button>
+                    </td>
+                `;
+                totalCantitate += parseInt(p.cantitate);
+                totalPret += parseInt(p.cantitate) * parseInt(p.pret);
+                produseList.appendChild(produsRow);
+            });
+
+            const paragraf_final=document.getElementById('tot');
+            paragraf_final.innerHTML = ``;
+            const total = document.createElement('p');
+            total.innerHTML = `
+                <strong>Total Cantitate: ${totalCantitate}</strong>
+                <strong>Total Pret: ${totalPret.toFixed(2)}</strong>
+            `;
+            paragraf_final.appendChild(total);
+
+
+        }
+
+        
+        function cumparare() {
+            if (!cosVirtual) {
+                alert("Cosul este gol!");
+                return;
+            }
+
+            const comanda = {
+                cos: cosVirtual
+            };
+
+            fetch('http://localhost:8000/aplicatie/cumpara_cos/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{csrf_token}}'
+                },
+                body: JSON.stringify(comanda)
+            })
+            .then(raspuns => {
+                if (!raspuns.ok) {
+                    throw new Error(`Eroare HTTP. Status: ${raspuns.status}`);
+                }
+                return raspuns.json();
+            })
+            .then(date => {
+                console.log('Raspuns:', date);
+                if (date.status === "success") {
+                    alert("Comanda a fost plasată cu succes!");
+                    localStorage.clear();
+                    location.reload();
+                } else {
+                    alert("A aparut o problema la plasarea comenzii.");
+                }
+            })
+            .catch(eroare => {
+                console.error('Eroare:', eroare);
+                alert("A aparut o eroare.");
+            });
+        };
+
+
+        document.addEventListener('DOMContentLoaded', actualizeazaAfisaj);
+    </script>
+</head>
+<body>
+    <div class="cos-cumparaturi">
+        <img src="https://cdn.pixabay.com/photo/2015/12/23/01/14/edit-1105049_1280.png" alt="Cos de cumparaturi">
+    </div>
+
+
+
+    <h1>Produse</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titlu</th>
+                <th>Pret</th>
+                <th>Stoc</th>
+                <th>Actiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produs in produse_json %}
+            <tr id="produs-{{ produs.id }}" >
+                <td>{{ produs.id }}</td>
+                <td>{{ produs.titlu }}</td>
+                <td>{{ produs.pret }}</td>
+                <td>{{ produs.nr_stoc }}</td>
+                <td>
+                    <input 
+                        type="number" 
+                        id="cantitate-{{ produs.id }}" 
+                        min="1" max="{{ produs.nr_stoc }}" 
+                        value="{{ produs.cantitate_in_cos }}">
+                </td>
+                <td>
+                    <button onclick="adaugaInCos({{ produs.id }}, '{{ produs.titlu }}', {{ produs.nr_stoc }}, {{ produs.pret }}, document.getElementById('cantitate-{{ produs.id }}').value)">Adauga in cos o catitate personalizata</button>
+                    <button onclick="adaugaInCos({{ produs.id }}, '{{ produs.titlu }}', {{ produs.nr_stoc }}, {{ produs.pret }}, 5)">Adauga in cos 5 produse deodata</button>
+                    <button onclick="adaugaInCos({{ produs.id }}, '{{ produs.titlu }}', {{ produs.nr_stoc }}, {{ produs.pret }}, 1)">Adauga in cos (un produs)</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Cos Virtual</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titlu</th>
+                <th>Cantitate</th>
+                <th>Pret Unitar</th>
+                <th>Pret Total</th>
+                <th>Actiuni</th>
+            </tr>
+        </thead>
+        <tbody id="produse-list">
+        </tbody>
+    </table>
+    <div id='tot'>Total:</div>
+    
+    <label for="criteriu-ordonare">Ordoneaza dupa:</label>
+    <select id="criteriu-ordonare" onclick="ordoneazaProduse(this.value)">
+        <option value="nume">Ordonati după Nume</option>
+        <option value="pret">Ordonati după Pretul total</option>
+    </select>
+    <div>
+        <br>
+        <br>
+    <button class="buton-cumpara" onclick="cumparare()"><strong>Cumpara</strong></button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Filtrare Cărți</title>
+</head>
+<body>
+    <h1>Filtrare cărți:</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ Form.as_p }}
+        <button type="submit">Aplică filtre</button>
+    </form>
+
+    <h2>Rezultate:</h2>
+            {% for carte in Carti %}
+                <p>{{ carte.titlu }} | {{ carte.nr_pagini }}|{{ carte.data_publicatie }}|{{ carte.pret }}|{{ carte.get_stoc_display }}</p>
+            {%empty%}
+                <p>Nu sunt rezultate!</p>
+            {% endfor %}
+</body>
+</html>

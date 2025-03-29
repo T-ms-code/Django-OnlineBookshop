@@ -1,0 +1,52 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div>
+        {{ form.username.label_tag }} {{ form.username }}
+        {{ form.username.errors }}
+    </div>
+    <div>
+        {{ form.email.label_tag }} {{ form.email }}
+        {{ form.email.errors }}
+    </div>
+    <div>
+        {{ form.telefon.label_tag }} {{ form.telefon }}
+        {{ form.telefon.errors }}
+    </div>
+    <div>
+        {{ form.tara.label_tag }} {{ form.tara }}
+        {{ form.tara.errors }}
+    </div>
+    <div>
+        {{ form.localitate.label_tag }} {{ form.localitate }}
+        {{ form.localiate.errors }}
+    </div>
+    <div>
+        {{ form.strada.label_tag }} {{ form.strada }}
+        {{ form.strada.errors }}
+    </div>
+    <div>
+        {{ form.gen.label_tag }} {{ form.gen }}
+        {{ form.gen.errors }}
+    </div>
+    <div>
+        {{ form.password1.label_tag }} {{ form.password1 }}
+        {{ form.password1.errors }}
+    </div>
+    <div>
+        {{ form.password2.label_tag }} {{ form.password2 }}
+        {{ form.password2.errors }}
+    </div>
+    <button type="submit">Register</button>
+</form>

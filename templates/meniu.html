@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <p><strong>MENIU</strong></p>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                
+                <li><a href="{% url '6' %}">Filtrare-Carti</a></li>
+                <li><a href="{% url '7' %}">Contact</a></li>
+                <li><a href="{% url 'pagina_acces_oferte' %}">Oferte</a></li>
+                <li><a href="{% url 'django.contrib.sitemaps.views.sitemap' %}">Sitemap</a></li>
+                <li><a href="{% url 'cos_virtual' %}">Cos</a></li>
+
+                <!-- Butoane vizibile doar utilizatorilor autentificati -->
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'schimba_parola' %}">Schimba Parola</a></li>
+                    <li><a href="{% url 'logout2' %}">Logout</a></li>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url '11' %}">Inregistrare</a></li>
+                {% endif %}
+                
+                <!-- Pagini vizibile doar cu permisiuni -->
+                {% if is_administrator_produse %}
+                    <li><a href="{% url '8' %}">Adauga un autor</a></li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </header>
+    <main></main>
+    <footer>
+        <p>&copy; 2025 My Site</p>
+    </footer>
+</body>
+</html>

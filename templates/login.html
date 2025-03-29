@@ -1,0 +1,27 @@
+<form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div>
+        {{ form.username.label_tag }} {{ form.username }}
+        {{ form.username.errors }}
+    </div>
+    <div>
+        {{ form.password.label_tag }} {{ form.password }}
+        {{ form.password.errors }}
+    </div>
+    <div>
+        {{ form.ramane_logat.label_tag }} {{ form.ramane_logat }}
+    </div>
+    <button type="submit">Login</button>
+</form>

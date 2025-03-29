@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>
+    Pagina din care se acceseaza oferte pentru clientii logati!
+    </h1>
+    <p>
+        {% if user.is_authenticated %}
+            
+            <div id="banner" style="display: none; background-color: blue;  padding: 15px; margin-top: 30px; text-align: center;">
+                <a href="{% url 'da_permisiune' %}" style="color: white; text-decoration: none; font-weight: bold;">
+                    Oferta reducere 50%!
+                </a>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const probability = Math.random();
+                    if (probability <= 0.3) {
+                        document.getElementById('banner').style.display = 'block';
+                    }
+                });
+            </script>
+        {% else %}
+            Nu esti logat!
+        {% endif %}
+    </p>
+    <p>{{ mesaj }}</p>
+    <p>{% include "meniu.html" %}</p>
+</body>
+</html>
